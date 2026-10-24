@@ -6,7 +6,7 @@
 <title>L’atelier du magazine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600&family=Barlow:wght@500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,600;1,700;1,900&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&family=Sofia+Sans+Extra+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600&family=Barlow:wght@500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,600;1,700;1,900&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
 /* Mise en page : un « bureau » neutre sur lequel sont posées des pages A4 de magazine people,
    papier blanc, encre noire, une seule couleur d’accent (le rouge du logo). */
@@ -34,7 +34,6 @@
   --f-mast: "Anton", "Impact", "Arial Narrow", sans-serif;
   --f-head: "Playfair Display", "Didot", "Georgia", serif;
   --f-body: "Source Serif 4", "Georgia", "Times New Roman", serif;
-  --f-cond: "Sofia Sans Extra Condensed", "Arial Narrow", sans-serif;
   --f-label: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
   --f-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
 
@@ -54,7 +53,6 @@
 }
 
 * { box-sizing: border-box; }
-[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   background: var(--desk);
@@ -194,61 +192,35 @@ body.edit .pic.has:hover .pic-tools, body.edit .pic.has:focus-within .pic-tools 
 .folio-n { font: 11pt/1 var(--f-mast); color: var(--accent); letter-spacing: 0; }
 .folio .mirror:last-child { margin-left: auto; }
 
-/* ---------- Couverture : construction d’une une de news magazine ----------
-   Logo rouge collé en haut à gauche, photo pleine page jusqu’au bandeau blanc du bas,
-   sujet secondaire en haut à droite, grand titre centré dans la colonne de gauche,
-   petite photo et code-barres en bas à gauche, second sujet dans le bandeau blanc. */
-.p-cover { padding: 0; display: block; }
-.cv-photo { position: absolute; left: 0; top: 0; width: 100%; height: 253mm; background: #d9d3ce; }
-.cv-photo .pic-hint { left: 100mm; font-size: 12pt; color: #7d746e; }
-.cv-white { position: absolute; left: 0; right: 0; top: 253mm; bottom: 0; background: #fff; pointer-events: none; }
-.cv-fit { white-space: pre; }
-
-.logo { position: absolute; left: 0; top: 0; width: 85mm; height: 57mm; background: var(--accent); z-index: 3; }
-.logo svg { display: block; width: 100%; height: 100%; }
-body.edit .logo { cursor: pointer; }
-body.edit .logo:hover, .logo:focus-visible { outline: 1.5px solid var(--ink); outline-offset: -1.5px; }
-.p-cover:has(.cv-set:not([hidden])) .logo::after { display: none; }
-body.edit .logo:hover::after {
-  content: "Modifier le titre, le numéro, la date, le prix"; position: absolute; left: 2mm; bottom: -6mm; white-space: nowrap;
-  font: 600 8pt/1 var(--f-ui); background: var(--ink); color: #fff; padding: 1.2mm 2mm; border-radius: 1mm;
+/* ---------- Couverture ---------- */
+.p-cover { padding: 0; display: block; color: #fff; }
+.cv-photo { position: absolute; inset: 0; background: #39322f; }
+.cv-photo .pic-hint { color: #bdb2ab; font-size: 12pt; }
+.cv-shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 52%, rgba(0,0,0,.72) 100%);
 }
-
-.cv-tr { position: absolute; top: 4.6mm; right: 5mm; width: 64mm; text-align: right; z-index: 2; }
-.cv-tr-k { font: 25pt/.98 var(--f-mast); color: var(--accent); text-transform: uppercase; }
-.cv-tr-t { font: 600 15.5pt/1.02 var(--f-cond); color: var(--ink); margin-top: .8mm; }
-
-.cv-main { position: absolute; left: 6mm; width: 95mm; top: 79mm; text-align: center; z-index: 2; }
-.cv-kick { font: 800 21pt/1.06 var(--f-cond); letter-spacing: .3em; padding-left: .3em; text-transform: uppercase; color: var(--ink); }
-.cv-lead { font: italic 800 52pt/1 var(--f-cond); color: #fff; text-shadow: 0 .3mm 1.4mm rgba(0,0,0,.45); margin-top: 1.5mm; letter-spacing: -.01em; }
-.cv-name { font: 104pt/.94 var(--f-mast); color: var(--accent); text-transform: uppercase; margin-top: 1mm; letter-spacing: -.005em; }
-.cv-buls { display: flex; flex-direction: column; gap: 2.4mm; margin-top: 3.2mm; }
-.cv-bul { font: 700 18.5pt/1.03 var(--f-cond); text-transform: uppercase; color: var(--ink); }
-.cv-bul + .cv-bul::before { content: ""; display: block; width: 12mm; height: .7mm; background: var(--ink); margin: 0 auto 2.4mm; }
-body.view .cv-bul:has(> .f:empty) { display: none; }
-
-.cv-pcap { position: absolute; right: 7mm; top: 243.5mm; width: 64mm; text-align: right; z-index: 2; font: 600 7pt/1.15 var(--f-cond); color: #fff; text-shadow: 0 0 .8mm rgba(0,0,0,.7); }
-.cv-inset { position: absolute; left: 17.5mm; top: 232mm; width: 71.5mm; bottom: 0; z-index: 2; }
-.cv-inset .pic { position: absolute; inset: 0; min-height: 0; }
-.cv-bot { position: absolute; left: 94mm; right: 5mm; top: 255mm; bottom: 2.5mm; z-index: 2; display: flex; flex-direction: column; justify-content: center; gap: .6mm; }
-.cv-bk { font: 34pt/1 var(--f-mast); color: var(--accent); text-transform: uppercase; }
-.cv-bt { font: 500 38pt/.94 var(--f-cond); color: var(--ink); text-transform: uppercase; }
-
-.cv-code { position: absolute; left: 4.5mm; bottom: 1.5mm; width: 12mm; height: 46mm; z-index: 3; background: #fff; display: flex; gap: .6mm; padding: 1mm .8mm; }
-body.edit .cv-code { cursor: pointer; }
-.cv-code svg { width: 7mm; height: 100%; display: block; }
-.cv-code-t { writing-mode: vertical-rl; transform: rotate(180deg); font: 700 6.5pt/1 var(--f-cond); color: #000; white-space: nowrap; overflow: hidden; }
-.cv-strip { position: absolute; left: 1.3mm; top: 62mm; height: 165mm; z-index: 2; writing-mode: vertical-rl; transform: rotate(180deg); font: 600 5.5pt/1 var(--f-cond); color: var(--ink); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-align: right; }
-
-.cv-set {
-  position: absolute; left: 4mm; top: 61mm; z-index: 6; width: 82mm;
-  background: #fff; color: #1a1817; border-radius: 1.5mm; box-shadow: 0 2mm 8mm rgba(0,0,0,.3);
-  padding: 4mm; display: flex; flex-direction: column; gap: 2.4mm; font: 500 10pt/1.3 var(--f-ui);
+.p-cover .f { text-shadow: 0 .3mm 1.6mm rgba(0,0,0,.45); }
+.cv-band {
+  position: absolute; top: 0; left: 0; right: 0; background: var(--ink); color: #fff; text-shadow: none !important;
+  padding: 2.2mm 9mm; text-align: center; font: 600 11pt/1.2 var(--f-label); text-transform: uppercase; letter-spacing: .06em;
 }
-.cv-set-h { font: 700 11pt/1.2 var(--f-ui); }
-.cv-set label { display: flex; flex-direction: column; gap: .8mm; font-size: 9pt; color: #5c5550; }
-.cv-set input { font: 600 11pt/1.2 var(--f-ui); padding: 1.6mm 2mm; border: .3mm solid #c9c2bc; border-radius: 1mm; color: #1a1817; background: #fff; }
-.cv-set button { align-self: flex-end; border: 0; border-radius: 1mm; background: var(--accent); color: #fff; font: 700 10pt/1 var(--f-ui); padding: 2mm 4mm; cursor: pointer; }
+.cv-top { position: absolute; top: 14mm; left: 9mm; right: 9mm; display: flex; justify-content: space-between; align-items: flex-start; gap: 6mm; }
+.mast { background: var(--accent); padding: 2mm 5mm 3.2mm; display: inline-flex; flex-direction: column; max-width: 150mm; }
+.p-cover .mast .f { text-shadow: none; }
+.mast-1 { font: italic 900 21pt/1 var(--f-head); }
+.mast-2 { font: 76pt/.9 var(--f-mast); text-transform: uppercase; letter-spacing: -.01em; }
+.cv-meta { text-align: right; display: flex; flex-direction: column; gap: 1mm; font: 700 10.5pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .07em; padding-top: 1mm; }
+.cv-teasers { position: absolute; left: 9mm; top: 68mm; width: 62mm; display: flex; flex-direction: column; gap: 6mm; }
+.tz-k { display: inline-block; background: var(--accent); text-shadow: none !important; font: 700 9.5pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .08em; padding: .8mm 2mm .6mm; margin-bottom: 1.4mm; }
+.tz-t { font: 700 15pt/1.1 var(--f-head); text-wrap: balance; }
+.cv-inset { position: absolute; right: 10mm; top: 112mm; width: 54mm; background: #fff; padding: 2mm 2mm 2.6mm; transform: rotate(2.5deg); box-shadow: 0 1.5mm 5mm rgba(0,0,0,.35); }
+.cv-inset .pic { height: 54mm; }
+.cv-cap { color: var(--ink); text-shadow: none !important; font: 600 9.5pt/1.2 var(--f-label); text-align: center; padding-top: 1.8mm; }
+.cv-main { position: absolute; left: 9mm; right: 9mm; bottom: 11mm; }
+.kick { display: inline-block; background: var(--accent); text-shadow: none !important; font: 700 13pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .1em; padding: 1mm 3mm .8mm; }
+.cv-title { font: 56pt/.94 var(--f-mast); text-transform: uppercase; margin-top: 2.5mm; text-wrap: balance; }
+.cv-sub { font: italic 600 17pt/1.2 var(--f-head); margin-top: 2.5mm; text-wrap: balance; }
 
 /* ---------- Sommaire ---------- */
 .som { display: grid; grid-template-columns: 1.35fr 1fr; gap: 8mm; }
@@ -381,9 +353,7 @@ body.edit .qz-ans { transform: none; }
 @page { size: A4; margin: 0; }
 @media print {
   html, body { background: #fff !important; }
-  .bar, .help, .sheet-bar, #toast, .pic-tools, .pic-hint, .cv-set { display: none !important; }
-  .logo::after { content: none !important; }
-  .logo { outline: none !important; }
+  .bar, .help, .sheet-bar, #toast, .pic-tools, .pic-hint { display: none !important; }
   #mag { display: block; padding: 0; }
   .sheet { width: auto; max-width: none; margin: 0; }
   .page { zoom: 1 !important; box-shadow: none; break-after: page; page-break-after: always; }
@@ -447,8 +417,8 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* Champ texte éditable : k = clé, ph = texte d’aide affiché quand c’est vide */
-const T = (k, ph, cls = '', single = false, fit = 0) =>
-  `<div class="f ${cls}${fit ? ' cv-fit' : ''}" data-k="${k}" data-ph="${esc(ph)}"${single ? ' data-single' : ''}${fit ? ` data-fit="${fit}"` : ''}></div>`;
+const T = (k, ph, cls = '', single = false) =>
+  `<div class="f ${cls}" data-k="${k}" data-ph="${esc(ph)}"${single ? ' data-single' : ''}></div>`;
 /* Cadre photo */
 const I = (k, label, cls = '') =>
   `<figure class="pic ${cls}" data-img="${k}"><img alt="" hidden draggable="false"><span class="pic-hint">${label}</span>` +
@@ -470,31 +440,18 @@ const SIGNS = [
 const TYPES = {
   cover: {
     label: 'Couverture', folio: false,
+    defaults: { kicker: 'Exclusif' },
     html: () => `
       ${I('photo', 'Cliquez pour ajouter la photo de une', 'cv-photo')}
-      <div class="cv-white"></div>
-      <div class="logo" data-logo role="button" tabindex="0" aria-label="Titre du magazine"></div>
-      <div class="cv-set" hidden>
-        <div class="cv-set-h">Titre et informations du numéro</div>
-        <label>Petit mot, en noir dans le logo<input data-g="name1" maxlength="24" autocomplete="off"></label>
-        <label>Grand mot, en blanc<input data-g="name2" maxlength="14" autocomplete="off"></label>
-        <label>Numéro<input data-g="issue" placeholder="N° 90" autocomplete="off"></label>
-        <label>Date<input data-g="date" placeholder="Octobre 2026" autocomplete="off"></label>
-        <label>Prix<input data-g="price" placeholder="Un câlin" autocomplete="off"></label>
-        <button type="button" data-set-close>Terminé</button>
+      <div class="cv-shade"></div>
+      ${T('band', 'Le bandeau du haut : une phrase choc', 'cv-band')}
+      <div class="cv-top">
+        <div class="mast">${T('g.name1', 'Nom', 'mast-1', true)}${T('g.name2', 'MATCH', 'mast-2', true)}</div>
+        <div class="cv-meta">${T('g.issue', 'N° du numéro', '', true)}${T('g.date', 'Date', '', true)}${T('g.price', 'Prix', '', true)}</div>
       </div>
-      <div class="cv-tr">${T('trK', 'Le sujet\nsecondaire…', 'cv-tr-k')}${T('trT', 'Une ou deux lignes\npour en dire plus', 'cv-tr-t')}</div>
-      <div class="cv-strip mirror" data-mirror="strip" aria-hidden="true"></div>
-      <div class="cv-main">
-        ${T('kick', 'Interview\nexclusive', 'cv-kick')}
-        ${T('lead', 'Les secrets de', 'cv-lead', false, 52)}
-        ${T('name', 'Prénom\nNom', 'cv-name', false, 104)}
-        <div class="cv-buls">${[1, 2, 3].map(i => `<div class="cv-bul">${T('b' + i, ['Son enfance\nà la campagne', 'Ses amours,\nses voyages', 'Ses projets\npour la suite'][i - 1])}</div>`).join('')}</div>
-      </div>
-      ${T('pcap', 'Légende de la photo, en petit.', 'cv-pcap')}
-      <div class="cv-inset">${I('inset', 'Photo du second sujet')}</div>
-      <div class="cv-code" data-code title="Numéro, date et prix"><svg class="barcode" viewBox="0 0 7 44" preserveAspectRatio="none" aria-hidden="true"></svg><span class="cv-code-t mirror" data-mirror="price"></span></div>
-      <div class="cv-bot">${T('bk', 'Le second sujet', 'cv-bk', false, 34)}${T('bt', 'Son titre\nen deux lignes', 'cv-bt', false, 38)}</div>`,
+      <div class="cv-teasers">${[1, 2, 3].map(i => `<div>${T('tk' + i, 'Rubrique', 'tz-k', true)}${T('tt' + i, 'Une accroche qui intrigue', 'tz-t')}</div>`).join('')}</div>
+      <div class="cv-inset">${I('inset', 'Petite photo')}${T('insetCap', 'Légende de la petite photo', 'cv-cap')}</div>
+      <div class="cv-main">${T('kicker', 'Exclusif', 'kick', true)}${T('title', 'Le gros titre de la une', 'cv-title')}${T('sub', 'Le sous-titre qui donne envie de tout lire', 'cv-sub')}</div>`,
   },
   summary: {
     label: 'Sommaire',
@@ -740,84 +697,13 @@ function render() {
   });
   applyMode();
   refreshMirrors();
-  drawLogos();
-  fitAll();
 }
 function refreshMirrors() {
-  const g = state.g;
-  const name = [g.name1, g.name2].filter(Boolean).join(' ');
+  const name = [state.g.name1, state.g.name2].filter(Boolean).join(' ');
   $$('[data-mirror="name"]').forEach(el => { el.textContent = name; });
-  $$('[data-mirror="date"]').forEach(el => { el.textContent = g.date || ''; });
-  $$('[data-mirror="price"]').forEach(el => { el.textContent = [g.issue, g.price].filter(Boolean).join(' · '); });
-  $$('[data-mirror="strip"]').forEach(el => {
-    el.textContent = [name, g.issue, g.date && 'du ' + g.date, g.price && 'Prix : ' + g.price].filter(Boolean).join(' · ');
-  });
-  $$('.barcode').forEach(svg => { svg.innerHTML = barcode(name + (g.issue || '')); });
+  $$('[data-mirror="date"]').forEach(el => { el.textContent = state.g.date || ''; });
   $$('.folio-n').forEach(el => { el.textContent = state.pages.findIndex(p => p.id === el.closest('.sheet').dataset.id) + 1; });
 }
-/* Logo : la première et la dernière lettre du grand mot sur toute la hauteur,
-   les lettres du milieu plus courtes, surmontées du petit mot en noir.
-   Dessiné en SVG (unités = mm) et comprimé horizontalement pour tenir dans le cartouche. */
-const measureCtx = document.createElement('canvas').getContext('2d');
-function textWidth(text, size) {
-  measureCtx.font = `${size}px Anton`;
-  return measureCtx.measureText(text).width;
-}
-function logoSVG(small, big) {
-  const W = 85, H = 57, padX = 4, top = 4.6, base = H - 4.4;
-  measureCtx.font = '100px Anton';
-  const capRatio = (measureCtx.measureText('H').actualBoundingBoxAscent || 73) / 100;
-  const capFull = base - top;
-  const chars = [...big];
-  const split = chars.length >= 3;
-  const first = split ? chars[0] : '', last = split ? chars[chars.length - 1] : '';
-  const mid = split ? chars.slice(1, -1).join('') : big;
-  const capSmall = small ? capFull * 0.25 : 0;
-  const capMid = small ? capFull - capSmall - capFull * 0.045 : capFull;
-  const fsFull = capFull / capRatio, fsMid = capMid / capRatio, fsSmall = capSmall / capRatio;
-  const wF = textWidth(first, fsFull), wM = textWidth(mid, fsMid), wL = textWidth(last, fsFull);
-  const sx = Math.min(1, (W - 2 * padX) / (wF + wM + wL || 1));
-  let x = (W - (wF + wM + wL) * sx) / 2;
-  const txt = (t, fs, x0, y, sxx, fill) => t ? `<text transform="translate(${x0.toFixed(2)} ${y.toFixed(2)}) scale(${sxx.toFixed(4)} 1)" font-family="Anton, Impact, sans-serif" font-size="${fs.toFixed(2)}" fill="${fill}">${esc(t)}</text>` : '';
-  let out = txt(first, fsFull, x, base, sx, '#fff');
-  const midX = x + wF * sx;
-  out += txt(mid, fsMid, midX, base, sx, '#fff');
-  out += txt(last, fsFull, midX + wM * sx, base, sx, '#fff');
-  if (small) {
-    const zone = split ? wM * sx : (wF + wM + wL) * sx;
-    const wS = textWidth(small, fsSmall);
-    const sxS = Math.min(1.15, zone / (wS || 1));
-    out += txt(small, fsSmall, midX + (zone - wS * sxS) / 2, top + capSmall, sxS, '#000');
-  }
-  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${out}</svg>`;
-}
-function drawLogos() {
-  const up = s => (s || '').trim().toLocaleUpperCase('fr-FR');
-  const html = logoSVG(up(state.g.name1), up(state.g.name2));
-  $$('[data-logo]').forEach(el => { el.innerHTML = html; el.setAttribute('aria-label', `Titre du magazine : ${state.g.name1 || ''} ${state.g.name2 || ''}`); });
-}
-/* Code-barres décoratif, toujours le même pour un même titre */
-function barcode(seed) {
-  let h = 2166136261;
-  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  const rnd = () => ((h = Math.imul(h ^ (h >>> 13), 1274126177)) >>> 0) / 4294967296;
-  let y = 0, out = '';
-  while (y < 42) {
-    const t = 0.18 + rnd() * 0.55;
-    out += `<rect x="0" y="${y.toFixed(2)}" width="7" height="${t.toFixed(2)}" fill="#000"/>`;
-    y += t + 0.2 + rnd() * 0.45;
-  }
-  return out;
-}
-/* Les grands titres de la une remplissent la largeur de leur colonne sans en déborder */
-function fitText(el) {
-  const max = parseFloat(el.dataset.fit);
-  el.style.fontSize = max + 'pt';
-  const avail = el.clientWidth, need = el.scrollWidth;
-  if (avail && need > avail) el.style.fontSize = (max * avail / need).toFixed(2) + 'pt';
-}
-const fitAll = () => $$('[data-fit]', mag).forEach(fitText);
-
 function paintImg(fig, im) {
   const img = $('img', fig);
   if (im && im.src) {
@@ -877,14 +763,6 @@ function readText(el) {
   return out;
 }
 mag.addEventListener('input', e => {
-  if (e.target.dataset.g) {
-    state.g[e.target.dataset.g] = e.target.value;
-    $$(`[data-g="${e.target.dataset.g}"]`).forEach(o => { if (o !== e.target) o.value = e.target.value; });
-    drawLogos();
-    refreshMirrors();
-    scheduleSave();
-    return;
-  }
   const el = e.target.closest('[data-k]');
   if (!el) return;
   const k = el.dataset.k;
@@ -892,7 +770,6 @@ mag.addEventListener('input', e => {
   if (el.hasAttribute('data-single')) v = v.replace(/\n/g, ' ');
   if (!v.trim()) v = '';
   setVal(pageOf(el), k, v);
-  if (el.dataset.fit) fitText(el);
   if (k.startsWith('g.')) {
     $$(`[data-k="${k}"]`).forEach(o => { if (o !== el) o.textContent = v; });
     refreshMirrors();
@@ -916,30 +793,6 @@ mag.addEventListener('paste', e => {
   let text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
   if (el.hasAttribute('data-single')) text = text.replace(/\s*\n\s*/g, ' ');
   document.execCommand('insertText', false, text);
-});
-
-/* ---------- Réglages du titre (clic sur le logo ou le code-barres) ---------- */
-function openSettings(sheet) {
-  const box = $('.cv-set', sheet);
-  $$('[data-g]', box).forEach(inp => { inp.value = state.g[inp.dataset.g] || ''; });
-  box.hidden = false;
-  $('[data-g]', box).focus();
-}
-const closeSettings = () => $$('.cv-set').forEach(b => { b.hidden = true; });
-mag.addEventListener('click', e => {
-  if (e.target.closest('[data-set-close]')) return closeSettings();
-  const opener = e.target.closest('[data-logo], [data-code]');
-  if (opener && mode === 'edit') return openSettings(opener.closest('.sheet'));
-});
-mag.addEventListener('keydown', e => {
-  if (e.target.matches('[data-logo]') && (e.key === 'Enter' || e.key === ' ') && mode === 'edit') {
-    e.preventDefault();
-    openSettings(e.target.closest('.sheet'));
-  }
-  if (e.target.closest('.cv-set') && (e.key === 'Escape' || e.key === 'Enter')) closeSettings();
-});
-document.addEventListener('pointerdown', e => {
-  if (!e.target.closest('.cv-set, [data-logo], [data-code]')) closeSettings();
 });
 
 /* ---------- Photos ---------- */
@@ -1182,10 +1035,6 @@ function toast(msg) {
   }
   applyAccent();
   render();
-  /* Le logo et l’ajustement des titres dépendent des polices : on recalcule une fois chargées */
-  try { await document.fonts.load('100px Anton'); await document.fonts.ready; } catch (e) {}
-  drawLogos();
-  fitAll();
 })();
 })();
 </script>
