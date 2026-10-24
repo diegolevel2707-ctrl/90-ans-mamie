@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L’atelier du magazine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,600&family=Barlow:wght@500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,600;1,700;1,900&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Mise en page : un « bureau » neutre sur lequel sont posées des pages A4 de magazine people,
+   papier blanc, encre noire, une seule couleur d’accent (le rouge du logo). */
+:root {
+  /* Interface (bureau, barre d’outils) */
+  --desk: #e7e3e0;
+  --bar: #171514;
+  --bar-fg: #f5f1ee;
+  --bar-mute: #a8a09a;
+  --bar-chip: #2b2725;
+  --ui-fg: #2a2522;
+  --ui-mute: #6c645e;
+  --ui-line: #cdc6c0;
+  --ui-card: #f6f3f1;
+
+  /* Le papier : toujours le même, à l’écran comme à l’impression */
+  --paper: #ffffff;
+  --ink: #141313;
+  --ink-2: #4b4643;
+  --rule: #d8d2cd;
+  --tint: #f3efec;
+  --photo-empty: #e6e1dd;
+  --accent: #e2001a;
+
+  --f-mast: "Anton", "Impact", "Arial Narrow", sans-serif;
+  --f-head: "Playfair Display", "Didot", "Georgia", serif;
+  --f-body: "Source Serif 4", "Georgia", "Times New Roman", serif;
+  --f-label: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --f-ui: "Barlow", "Helvetica Neue", Arial, sans-serif;
+
+  --z: 1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #1c1a19; --bar: #0e0d0c; --bar-chip: #262220;
+    --ui-fg: #ece6e1; --ui-mute: #a39b95; --ui-line: #3b3633; --ui-card: #262321;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #1c1a19; --bar: #0e0d0c; --bar-chip: #262220;
+  --ui-fg: #ece6e1; --ui-mute: #a39b95; --ui-line: #3b3633; --ui-card: #262321;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--desk);
+  color: var(--ui-fg);
+  font: 500 15px/1.45 var(--f-ui);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+button, select, input { font: inherit; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Barre d’outils ---------- */
+.bar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bar); color: var(--bar-fg);
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+}
+.brand { display: flex; align-items: center; gap: 10px; margin: 0; font: 700 18px/1 var(--f-label); text-transform: uppercase; letter-spacing: .06em; }
+.brand-mark { background: var(--accent); color: #fff; font: 22px/1 var(--f-mast); padding: 4px 7px 5px; letter-spacing: 0; }
+.bar-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.bar-sp { flex: 1; }
+.btn {
+  appearance: none; border: 1px solid transparent; border-radius: 3px;
+  background: var(--bar-chip); color: var(--bar-fg);
+  padding: 7px 12px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { border-color: var(--bar-mute); }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.warn { background: #8c1a10; color: #fff; }
+.btn-color { display: inline-flex; align-items: center; gap: 6px; }
+.btn-color input { width: 22px; height: 22px; border: 0; padding: 0; background: none; cursor: pointer; }
+select.btn { padding-right: 8px; }
+.status { font-size: 13px; color: var(--bar-mute); min-width: 9ch; }
+
+/* ---------- Aide ---------- */
+.help {
+  max-width: 900px; margin: 18px auto 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.help-in {
+  background: var(--ui-card); border: 1px solid var(--ui-line); border-radius: 4px;
+  padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start;
+}
+.help-in ul { margin: 0; padding-left: 18px; color: var(--ui-mute); }
+.help-in li + li { margin-top: 3px; }
+.help-in strong { color: var(--ui-fg); }
+.help-close { margin-left: auto; background: none; border: 0; color: var(--ui-mute); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px; }
+body.view .help { display: none; }
+
+/* ---------- Le chemin de fer ---------- */
+#mag {
+  display: flex; flex-direction: column; align-items: center; gap: 34px;
+  padding-block: 22px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.sheet { width: calc(210mm * var(--z)); max-width: 100%; }
+.sheet-bar {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
+  font-size: 13px; color: var(--ui-mute);
+}
+.sb-n { font-weight: 600; color: var(--ui-fg); }
+.sb-sp { flex: 1; }
+.sheet-bar button {
+  border: 1px solid var(--ui-line); background: var(--ui-card); color: var(--ui-fg);
+  border-radius: 3px; padding: 3px 9px; font-size: 13px; cursor: pointer;
+}
+.sheet-bar button:hover:not(:disabled) { border-color: var(--ui-mute); }
+.sheet-bar button:disabled { opacity: .35; cursor: default; }
+.sheet-bar button.armed { background: #8c1a10; border-color: #8c1a10; color: #fff; }
+body.view .sheet-bar { display: none; }
+
+/* ---------- La page ---------- */
+.page {
+  zoom: var(--z);
+  width: 210mm; height: 297mm; overflow: hidden; position: relative;
+  background: var(--paper); color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 10px 30px rgba(0,0,0,.14);
+  display: flex; flex-direction: column; gap: 4.5mm;
+  padding: 11mm 12mm 8mm;
+  font: 400 9.6pt/1.38 var(--f-body);
+}
+.page > * { flex-shrink: 0; }
+.page .grow { flex: 1 1 0; min-height: 0; }
+
+/* Champs éditables */
+.f { white-space: pre-wrap; overflow-wrap: break-word; outline: none; min-width: 1em; }
+.f:empty::before { content: attr(data-ph); color: color-mix(in srgb, currentColor 42%, transparent); pointer-events: none; }
+body.view .f:empty::before { content: none; }
+body.edit .f { cursor: text; border-radius: 1px; }
+body.edit .f:hover { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
+body.edit .f:focus { box-shadow: 0 0 0 1.5px var(--accent); }
+
+/* Cadres photo */
+.pic { position: relative; margin: 0; overflow: hidden; background: var(--photo-empty); min-height: 14mm; }
+.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+.pic-hint {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 3mm; font: 600 9pt/1.2 var(--f-label); text-transform: uppercase; letter-spacing: .08em; color: #8b837d;
+}
+.pic.has .pic-hint, body.view .pic-hint { display: none; }
+body.edit .pic:not(.has) { cursor: pointer; }
+body.edit .pic:not(.has):hover, .pic.drop { background: color-mix(in srgb, var(--accent) 14%, var(--photo-empty)); }
+body.edit .pic:not(.has) .pic-hint::before { content: "+"; display: block; font: 18pt/1 var(--f-mast); margin-bottom: 1.5mm; }
+.pic-hint { flex-direction: column; }
+body.edit .pic.has img { cursor: grab; touch-action: none; }
+body.edit .pic.has img:active { cursor: grabbing; }
+.pic-tools { position: absolute; top: 2mm; right: 2mm; display: none; gap: 1mm; z-index: 3; }
+body.edit .pic.has:hover .pic-tools, body.edit .pic.has:focus-within .pic-tools { display: flex; }
+.pic-tools button {
+  border: 0; border-radius: 2px; background: rgba(15,14,13,.82); color: #fff;
+  font: 600 8pt/1 var(--f-ui); padding: 1.6mm 2.2mm; cursor: pointer; min-width: 6mm;
+}
+.pic-tools button:hover { background: var(--accent); }
+
+/* Éléments communs */
+.rub { display: flex; align-items: center; gap: 3mm; border-bottom: .6mm solid var(--ink); padding-bottom: 1.6mm; }
+.rub-t { background: var(--accent); color: #fff; font: 700 10.5pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .1em; padding: .9mm 2.6mm .7mm; }
+.rub-m { margin-left: auto; font: 18px/1 var(--f-mast); font-size: 12pt; text-transform: uppercase; color: var(--accent); letter-spacing: .02em; }
+.big-title { font: 46pt/.95 var(--f-mast); text-transform: uppercase; letter-spacing: -.005em; text-wrap: balance; }
+.chapo { font: 700 12.2pt/1.32 var(--f-body); text-wrap: pretty; }
+.byline { font: 600 9pt/1.2 var(--f-label); text-transform: uppercase; letter-spacing: .09em; color: var(--ink-2); }
+.body { text-align: justify; hyphens: auto; overflow: hidden; }
+.cols2 { columns: 2; column-gap: 5.5mm; column-fill: auto; }
+.dropcap::first-letter { float: left; font: 36pt/.78 var(--f-mast); color: var(--accent); padding: 1.3mm 1.8mm 0 0; }
+.cap { font: 500 8.6pt/1.3 var(--f-label); color: var(--ink-2); }
+.pull { font: italic 700 15pt/1.18 var(--f-head); color: var(--accent); text-wrap: balance; }
+.pull-by { font: 600 9pt/1.2 var(--f-label); text-transform: uppercase; letter-spacing: .08em; }
+.sub-h { font: 15pt/1 var(--f-mast); text-transform: uppercase; color: var(--accent); margin-bottom: 2mm; }
+.box { background: var(--tint); border-top: 1.2mm solid var(--accent); padding: 3.2mm 3.6mm; display: flex; flex-direction: column; gap: 1.6mm; }
+.box-t { font: 700 10pt/1.15 var(--f-label); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.box-l { font: 400 9.6pt/1.38 var(--f-body); }
+.folio {
+  margin-top: auto; display: flex; gap: 3mm; align-items: baseline;
+  border-top: .25mm solid var(--rule); padding-top: 1.8mm;
+  font: 600 8pt/1 var(--f-label); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2);
+}
+.folio-n { font: 11pt/1 var(--f-mast); color: var(--accent); letter-spacing: 0; }
+.folio .mirror:last-child { margin-left: auto; }
+
+/* ---------- Couverture ---------- */
+.p-cover { padding: 0; display: block; color: #fff; }
+.cv-photo { position: absolute; inset: 0; background: #39322f; }
+.cv-photo .pic-hint { color: #bdb2ab; font-size: 12pt; }
+.cv-shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 52%, rgba(0,0,0,.72) 100%);
+}
+.p-cover .f { text-shadow: 0 .3mm 1.6mm rgba(0,0,0,.45); }
+.cv-band {
+  position: absolute; top: 0; left: 0; right: 0; background: var(--ink); color: #fff; text-shadow: none !important;
+  padding: 2.2mm 9mm; text-align: center; font: 600 11pt/1.2 var(--f-label); text-transform: uppercase; letter-spacing: .06em;
+}
+.cv-top { position: absolute; top: 14mm; left: 9mm; right: 9mm; display: flex; justify-content: space-between; align-items: flex-start; gap: 6mm; }
+.mast { background: var(--accent); padding: 2mm 5mm 3.2mm; display: inline-flex; flex-direction: column; max-width: 150mm; }
+.p-cover .mast .f { text-shadow: none; }
+.mast-1 { font: italic 900 21pt/1 var(--f-head); }
+.mast-2 { font: 76pt/.9 var(--f-mast); text-transform: uppercase; letter-spacing: -.01em; }
+.cv-meta { text-align: right; display: flex; flex-direction: column; gap: 1mm; font: 700 10.5pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .07em; padding-top: 1mm; }
+.cv-teasers { position: absolute; left: 9mm; top: 68mm; width: 62mm; display: flex; flex-direction: column; gap: 6mm; }
+.tz-k { display: inline-block; background: var(--accent); text-shadow: none !important; font: 700 9.5pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .08em; padding: .8mm 2mm .6mm; margin-bottom: 1.4mm; }
+.tz-t { font: 700 15pt/1.1 var(--f-head); text-wrap: balance; }
+.cv-inset { position: absolute; right: 10mm; top: 112mm; width: 54mm; background: #fff; padding: 2mm 2mm 2.6mm; transform: rotate(2.5deg); box-shadow: 0 1.5mm 5mm rgba(0,0,0,.35); }
+.cv-inset .pic { height: 54mm; }
+.cv-cap { color: var(--ink); text-shadow: none !important; font: 600 9.5pt/1.2 var(--f-label); text-align: center; padding-top: 1.8mm; }
+.cv-main { position: absolute; left: 9mm; right: 9mm; bottom: 11mm; }
+.kick { display: inline-block; background: var(--accent); text-shadow: none !important; font: 700 13pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .1em; padding: 1mm 3mm .8mm; }
+.cv-title { font: 56pt/.94 var(--f-mast); text-transform: uppercase; margin-top: 2.5mm; text-wrap: balance; }
+.cv-sub { font: italic 600 17pt/1.2 var(--f-head); margin-top: 2.5mm; text-wrap: balance; }
+
+/* ---------- Sommaire ---------- */
+.som { display: grid; grid-template-columns: 1.35fr 1fr; gap: 8mm; }
+.som-list { display: flex; flex-direction: column; overflow: hidden; }
+.som-row { display: grid; grid-template-columns: 17mm 1fr; gap: 2mm; border-top: .25mm solid var(--rule); padding: 2.3mm 0; }
+.som-n { font: 22pt/1 var(--f-mast); color: var(--accent); }
+.som-r { font: 700 9pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin-bottom: .8mm; }
+.som-d { font: 700 12.3pt/1.16 var(--f-head); }
+.som-ed { background: var(--tint); padding: 5mm; display: flex; flex-direction: column; gap: 3mm; overflow: hidden; }
+.ed-k { font: 15pt/1 var(--f-mast); text-transform: uppercase; color: var(--accent); }
+.ed-photo { height: 58mm; }
+.ed-title { font: italic 700 16pt/1.15 var(--f-head); }
+.ed-sign { font: italic 600 11pt/1.2 var(--f-head); text-align: right; }
+
+/* ---------- Scoop ---------- */
+.sc-title { font: 52pt/.93 var(--f-mast); text-transform: uppercase; text-wrap: balance; }
+.sc-top { display: grid; grid-template-columns: 1.6fr 1fr; gap: 6mm; height: 108mm; }
+.sc-photo { position: relative; }
+.sc-photo .pic { position: absolute; inset: 0; }
+.sc-tag { position: absolute; top: 3mm; left: 3mm; z-index: 2; background: #ffe100; color: var(--ink); font: 700 9.5pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .1em; padding: 1mm 2.4mm .8mm; }
+.sc-side { display: flex; flex-direction: column; gap: 4mm; overflow: hidden; }
+.sc-bottom { display: grid; grid-template-columns: 1fr 56mm; grid-template-rows: minmax(0, 1fr); gap: 6mm; }
+.side-pic { display: flex; flex-direction: column; gap: 1.8mm; min-height: 0; }
+
+/* ---------- Reportage ---------- */
+.rp-photo { position: relative; height: 104mm; }
+.rp-photo .pic { position: absolute; inset: 0; }
+.credit { position: absolute; right: 2.5mm; bottom: 2mm; z-index: 2; color: #fff; font: 500 7.5pt/1 var(--f-label); text-transform: uppercase; letter-spacing: .08em; text-shadow: 0 0 1.5mm rgba(0,0,0,.7); }
+.rp-title { font: 900 30pt/1.03 var(--f-head); text-wrap: balance; }
+.rp-bottom { display: grid; grid-template-columns: 1fr 58mm; grid-template-rows: minmax(0, 1fr); gap: 6mm; }
+.rp-aside { display: flex; flex-direction: column; gap: 2.5mm; min-height: 0; border-left: .25mm solid var(--rule); padding-left: 5mm; }
+
+/* ---------- Interview ---------- */
+.iv { display: grid; grid-template-columns: 66mm 1fr; gap: 7mm; }
+.iv-side { display: flex; flex-direction: column; gap: 2.5mm; min-height: 0; overflow: hidden; }
+.iv-photo { height: 118mm; }
+.iv-name { font: 22pt/1 var(--f-mast); text-transform: uppercase; margin-top: 1mm; }
+.iv-role { font: 600 10.5pt/1.25 var(--f-label); color: var(--ink-2); }
+.iv-side .pull { margin-top: 3mm; border-top: 1.2mm solid var(--accent); padding-top: 3mm; }
+.iv-main { display: flex; flex-direction: column; gap: 3.5mm; min-height: 0; overflow: hidden; }
+.iv-title { font: italic 900 24pt/1.08 var(--f-head); text-wrap: balance; }
+.qa { display: flex; flex-direction: column; gap: 1.2mm; overflow: hidden; }
+.q { font: 700 10.8pt/1.25 var(--f-label); color: var(--accent); margin-top: 1.6mm; }
+
+/* ---------- Album ---------- */
+.al { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 4.5mm; }
+.al-c { display: flex; flex-direction: column; gap: 1.4mm; min-height: 0; }
+.al-c .pic { flex: 1 1 0; min-height: 0; }
+.al-0 { grid-column: 1 / 3; grid-row: 1 / 3; }
+.al-cap { display: flex; gap: 2mm; align-items: baseline; }
+.al-y { font: 12pt/1 var(--f-mast); color: var(--accent); }
+
+/* ---------- Ils ont dit ---------- */
+.pp { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 5mm 8mm; }
+.pp-c { display: grid; grid-template-columns: 32mm 1fr; gap: 4mm; align-items: start; border-top: .6mm solid var(--ink); padding-top: 3.5mm; overflow: hidden; }
+.pp-ph { height: 32mm; border-radius: 50%; }
+.pp-tx { display: flex; flex-direction: column; gap: 1.6mm; }
+.pp-q { font: italic 600 14pt/1.2 var(--f-head); }
+.pp-n { font: 700 10pt/1.1 var(--f-label); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.pp-x { font: 500 9pt/1.2 var(--f-label); color: var(--ink-2); }
+
+/* ---------- Horoscope ---------- */
+.ho-head { display: grid; grid-template-columns: auto 1fr; gap: 1.5mm 8mm; align-items: end; }
+.ho-head .big-title { grid-row: 1 / 3; }
+.ho { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 4mm 6mm; }
+.ho-c { border-top: .6mm solid var(--ink); padding-top: 2mm; overflow: hidden; display: grid; grid-template-columns: 9mm 1fr; column-gap: 2mm; align-content: start; }
+.ho-s { grid-row: 1 / 3; font: 21pt/1 "Segoe UI Symbol", "Apple Symbols", "DejaVu Sans", var(--f-body); color: var(--accent); }
+.ho-n { font: 13pt/1.05 var(--f-mast); text-transform: uppercase; }
+.ho-d { font: 500 8pt/1.2 var(--f-label); color: var(--ink-2); text-transform: uppercase; letter-spacing: .04em; }
+.ho-t { grid-column: 1 / 3; font-size: 9pt; line-height: 1.34; margin-top: 1.6mm; }
+
+/* ---------- Recette ---------- */
+.rc-photo { height: 92mm; }
+.rc-chips { display: flex; flex-wrap: wrap; gap: 3mm; }
+.chip { display: flex; gap: 2mm; align-items: baseline; border: .35mm solid var(--ink); padding: 1.4mm 3mm 1.2mm; }
+.chip-l { font: 700 8.5pt/1 var(--f-label); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.chip-v { font: 700 10.5pt/1 var(--f-label); }
+.rc { display: grid; grid-template-columns: 1fr 1.75fr; gap: 7mm; }
+.rc-ing { background: var(--tint); padding: 4mm; overflow: hidden; }
+.rc-steps { display: flex; flex-direction: column; gap: 3mm; overflow: hidden; }
+.rc-steps > .body { flex: 1 1 0; min-height: 0; }
+
+/* ---------- Quiz ---------- */
+.qz { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 7mm; align-content: start; overflow: hidden; }
+.qz-r { display: grid; grid-template-columns: 10mm 1fr; gap: 1mm; }
+.qz-n { font: 21pt/1 var(--f-mast); color: var(--accent); }
+.qz-q { font: 700 11pt/1.2 var(--f-head); }
+.qz-o { font: 500 9.6pt/1.35 var(--f-label); color: var(--ink-2); margin-top: .8mm; }
+.qz-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.qz-ans { border: .35mm dashed var(--ink-2); padding: 3mm 3.6mm; display: flex; flex-direction: column; gap: 1.4mm; transform: rotate(180deg); }
+body.edit .qz-ans { transform: none; }
+.qz-a { font: 500 9.4pt/1.35 var(--f-label); }
+
+/* ---------- Petites annonces ---------- */
+.pa { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 4mm; }
+.pa-c { border: .4mm solid var(--ink); padding: 3mm 3.5mm; display: flex; flex-direction: column; gap: 1.5mm; overflow: hidden; }
+.pa-k { font: 13.5pt/1 var(--f-mast); text-transform: uppercase; color: var(--accent); }
+.pa-t { font: 400 9.8pt/1.36 var(--f-body); }
+.pa-x { margin-top: auto; font: italic 600 9pt/1.2 var(--f-label); color: var(--ink-2); }
+
+/* ---------- Courrier ---------- */
+.cr-head { display: grid; grid-template-columns: 56mm 1fr; gap: 6mm; height: 46mm; }
+.cr-head > div { display: flex; flex-direction: column; justify-content: flex-end; gap: 2.5mm; }
+.cr { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 5mm 7mm; }
+.cr-c { border-top: .6mm solid var(--accent); padding-top: 2.2mm; display: flex; flex-direction: column; gap: 1.6mm; overflow: hidden; }
+.cr-t { font: italic 700 13pt/1.15 var(--f-head); }
+.cr-c .body { flex: 1 1 0; min-height: 0; }
+.cr-s { font: italic 600 10pt/1.2 var(--f-head); text-align: right; }
+
+/* ---------- Le mot de la fin ---------- */
+.fn-q { font: italic 900 28pt/1.1 var(--f-head); text-align: center; text-wrap: balance; padding: 0 6mm; }
+.fn-s { font: 600 10pt/1.2 var(--f-label); text-transform: uppercase; letter-spacing: .12em; text-align: center; color: var(--accent); }
+
+/* ---------- Message éphémère ---------- */
+#toast {
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  background: var(--bar); color: var(--bar-fg); padding: 10px 16px; border-radius: 4px; font-size: 14px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 60; max-width: calc(100% - 32px);
+}
+
+@media (max-width: 640px) {
+  .bar { gap: 8px; }
+  .brand { font-size: 15px; }
+  .bar-sp { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* ---------- Impression : une page de magazine = une feuille A4 ---------- */
+@page { size: A4; margin: 0; }
+@media print {
+  html, body { background: #fff !important; }
+  .bar, .help, .sheet-bar, #toast, .pic-tools, .pic-hint { display: none !important; }
+  #mag { display: block; padding: 0; }
+  .sheet { width: auto; max-width: none; margin: 0; }
+  .page { zoom: 1 !important; box-shadow: none; break-after: page; page-break-after: always; }
+  .sheet:last-child .page { break-after: auto; page-break-after: auto; }
+  .f:empty::before { content: none !important; }
+  .f { box-shadow: none !important; }
+  .qz-ans { transform: rotate(180deg) !important; }
+}
+</style>
+</head>
+<body class="edit">
+
+<header class="bar">
+  <h1 class="brand"><span class="brand-mark" aria-hidden="true">M</span>L’atelier du magazine</h1>
+  <div class="bar-group">
+    <button class="btn" id="modeBtn" type="button">Aperçu</button>
+    <select class="btn" id="addSel" aria-label="Ajouter une page"></select>
+    <label class="btn btn-color" title="Couleur du logo et des titres">Couleur
+      <input type="color" id="accent" value="#e2001a" aria-label="Couleur d’accent">
+    </label>
+  </div>
+  <span class="bar-sp"></span>
+  <div class="bar-group">
+    <span class="status" id="status" aria-live="polite"></span>
+    <button class="btn" id="exportBtn" type="button" title="Télécharger une sauvegarde à envoyer à un proche">Exporter</button>
+    <button class="btn" id="importBtn" type="button" title="Ouvrir une sauvegarde reçue">Importer</button>
+    <button class="btn" id="resetBtn" type="button">Tout effacer</button>
+    <button class="btn primary" id="printBtn" type="button">Imprimer / PDF</button>
+  </div>
+</header>
+
+<div class="help" id="help">
+  <div class="help-in">
+    <ul>
+      <li><strong>Écrire :</strong> cliquez sur n’importe quel texte gris de la page et tapez.</li>
+      <li><strong>Photos :</strong> cliquez sur un cadre (ou glissez-y une image). Une fois placée, faites-la glisser pour la recadrer ; survolez-la pour zoomer ou la changer.</li>
+      <li><strong>Pages :</strong> ajoutez-en avec « Ajouter une page », réordonnez-les avec ↑ ↓ au-dessus de chaque page.</li>
+      <li><strong>Sauvegarde :</strong> tout est enregistré automatiquement dans ce navigateur. « Exporter » crée un fichier à transmettre à un proche, qui l’ouvre avec « Importer » pour remplir sa rubrique.</li>
+      <li><strong>PDF :</strong> « Imprimer / PDF », puis choisissez « Enregistrer au format PDF », papier A4, marges « Aucune », et cochez « Graphiques d’arrière-plan ».</li>
+    </ul>
+    <button class="help-close" id="helpClose" type="button" aria-label="Masquer l’aide">×</button>
+  </div>
+</div>
+
+<main id="mag" aria-label="Pages du magazine"></main>
+
+<input type="file" id="imgInput" accept="image/*" hidden>
+<input type="file" id="jsonInput" accept="application/json,.json" hidden>
+<div id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Petits outils ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const range = n => Array.from({ length: n }, (_, i) => i);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const uid = () => Math.random().toString(36).slice(2, 10);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* Champ texte éditable : k = clé, ph = texte d’aide affiché quand c’est vide */
+const T = (k, ph, cls = '', single = false) =>
+  `<div class="f ${cls}" data-k="${k}" data-ph="${esc(ph)}"${single ? ' data-single' : ''}></div>`;
+/* Cadre photo */
+const I = (k, label, cls = '') =>
+  `<figure class="pic ${cls}" data-img="${k}"><img alt="" hidden draggable="false"><span class="pic-hint">${label}</span>` +
+  `<span class="pic-tools"><button type="button" data-act="change">Changer</button>` +
+  `<button type="button" data-act="out" aria-label="Dézoomer">−</button>` +
+  `<button type="button" data-act="in" aria-label="Zoomer">+</button>` +
+  `<button type="button" data-act="del" aria-label="Retirer la photo">✕</button></span></figure>`;
+const RUB = ph => `<div class="rub">${T('rub', ph, 'rub-t', true)}<span class="rub-m mirror" data-mirror="name"></span></div>`;
+const FOLIO = `<footer class="folio"><span class="folio-n"></span><span class="mirror" data-mirror="name"></span><span class="mirror" data-mirror="date"></span></footer>`;
+
+const SIGNS = [
+  ['Bélier', '♈', '21 mars – 19 avril'], ['Taureau', '♉', '20 avril – 20 mai'], ['Gémeaux', '♊', '21 mai – 20 juin'],
+  ['Cancer', '♋', '21 juin – 22 juil.'], ['Lion', '♌', '23 juil. – 22 août'], ['Vierge', '♍', '23 août – 22 sept.'],
+  ['Balance', '♎', '23 sept. – 22 oct.'], ['Scorpion', '♏', '23 oct. – 21 nov.'], ['Sagittaire', '♐', '22 nov. – 21 déc.'],
+  ['Capricorne', '♑', '22 déc. – 19 janv.'], ['Verseau', '♒', '20 janv. – 18 févr.'], ['Poissons', '♓', '19 févr. – 20 mars'],
+];
+
+/* ---------- Les rubriques du magazine ---------- */
+const TYPES = {
+  cover: {
+    label: 'Couverture', folio: false,
+    defaults: { kicker: 'Exclusif' },
+    html: () => `
+      ${I('photo', 'Cliquez pour ajouter la photo de une', 'cv-photo')}
+      <div class="cv-shade"></div>
+      ${T('band', 'Le bandeau du haut : une phrase choc', 'cv-band')}
+      <div class="cv-top">
+        <div class="mast">${T('g.name1', 'Nom', 'mast-1', true)}${T('g.name2', 'MATCH', 'mast-2', true)}</div>
+        <div class="cv-meta">${T('g.issue', 'N° du numéro', '', true)}${T('g.date', 'Date', '', true)}${T('g.price', 'Prix', '', true)}</div>
+      </div>
+      <div class="cv-teasers">${[1, 2, 3].map(i => `<div>${T('tk' + i, 'Rubrique', 'tz-k', true)}${T('tt' + i, 'Une accroche qui intrigue', 'tz-t')}</div>`).join('')}</div>
+      <div class="cv-inset">${I('inset', 'Petite photo')}${T('insetCap', 'Légende de la petite photo', 'cv-cap')}</div>
+      <div class="cv-main">${T('kicker', 'Exclusif', 'kick', true)}${T('title', 'Le gros titre de la une', 'cv-title')}${T('sub', 'Le sous-titre qui donne envie de tout lire', 'cv-sub')}</div>`,
+  },
+  summary: {
+    label: 'Sommaire',
+    defaults: { rub: 'Dans ce numéro', title: 'Sommaire', edT: 'Édito' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'Sommaire', 'big-title', true)}
+      <div class="som grow">
+        <div class="som-list">${range(9).map(i => `<div class="som-row">${T('n' + i, '00', 'som-n', true)}<div>${T('r' + i, 'Rubrique', 'som-r', true)}${T('d' + i, 'Le titre de l’article', 'som-d')}</div></div>`).join('')}</div>
+        <aside class="som-ed">
+          ${T('edT', 'Édito', 'ed-k', true)}
+          ${I('edPhoto', 'Photo de l’auteur de l’édito', 'ed-photo')}
+          ${T('edTitle', 'Le titre de l’édito', 'ed-title')}
+          ${T('ed', 'Le mot du rédacteur en chef : pourquoi ce numéro spécial, ce qu’on va y découvrir…', 'body grow')}
+          ${T('edSign', 'Signature', 'ed-sign', true)}
+        </aside>
+      </div>`,
+  },
+  scoop: {
+    label: 'Scoop',
+    defaults: { rub: 'Exclusif', tag: 'Photo exclusive', boxT: 'Ce qu’il faut retenir' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'Le scoop de l’année', 'sc-title')}
+      <div class="sc-top">
+        <div class="sc-photo">${I('photo', 'La photo du scoop')}${T('tag', 'Photo exclusive', 'sc-tag', true)}</div>
+        <div class="sc-side">
+          ${T('chapo', 'Le chapô : en deux ou trois phrases, ce qui s’est passé, qui, où et quand.', 'chapo')}
+          <div class="box">${T('boxT', 'Ce qu’il faut retenir', 'box-t', true)}${T('box', '• Premier point\n• Deuxième point\n• Troisième point', 'box-l')}</div>
+        </div>
+      </div>
+      <div class="sc-bottom grow">
+        ${T('body', 'Racontez ici toute l’histoire, avec les détails croustillants, les témoins, les rebondissements…', 'body cols2 dropcap')}
+        <div class="side-pic">${I('photo2', 'Deuxième photo', 'grow')}${T('cap2', 'Légende de la photo', 'cap')}</div>
+      </div>
+      ${FOLIO}`,
+  },
+  story: {
+    label: 'Grand reportage',
+    defaults: { rub: 'Grand reportage' },
+    html: () => `
+      ${RUB('Rubrique')}
+      <div class="rp-photo">${I('photo', 'La grande photo du reportage')}${T('credit', 'Photo : …', 'credit', true)}</div>
+      ${T('title', 'Le titre du reportage', 'rp-title')}
+      ${T('chapo', 'Le chapô : ce que le lecteur va découvrir dans ces pages.', 'chapo')}
+      ${T('byline', 'Par … · Photos …', 'byline', true)}
+      <div class="rp-bottom grow">
+        ${T('body', 'Le texte du reportage. Il se répartit tout seul sur deux colonnes.', 'body cols2 dropcap')}
+        <aside class="rp-aside">
+          ${T('quote', '« Une citation forte tirée de l’article »', 'pull')}
+          ${T('quoteBy', '— Qui l’a dit', 'pull-by', true)}
+          ${I('photo2', 'Photo', 'grow')}
+          ${T('cap2', 'Légende de la photo', 'cap')}
+        </aside>
+      </div>
+      ${FOLIO}`,
+  },
+  interview: {
+    label: 'Interview',
+    defaults: { rub: 'L’interview vérité' },
+    html: () => `
+      ${RUB('Rubrique')}
+      <div class="iv grow">
+        <aside class="iv-side">
+          ${I('photo', 'Portrait', 'iv-photo')}
+          ${T('name', 'Prénom Nom', 'iv-name', true)}
+          ${T('role', 'Qui est-ce ? En une ligne', 'iv-role')}
+          ${T('quote', '« La phrase qu’on retiendra »', 'pull')}
+        </aside>
+        <div class="iv-main">
+          ${T('title', '« Le titre de l’interview, entre guillemets »', 'iv-title')}
+          ${T('intro', 'L’introduction : où et comment s’est passée la rencontre.', 'chapo')}
+          <div class="qa grow">${range(6).map(i => T('q' + i, 'Votre question ?', 'q') + T('a' + i, 'Sa réponse…', 'body')).join('')}</div>
+        </div>
+      </div>
+      ${FOLIO}`,
+  },
+  album: {
+    label: 'Album photo',
+    defaults: { rub: 'Souvenirs', title: 'L’album de famille' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'L’album de famille', 'big-title', true)}
+      ${T('intro', 'Une phrase pour présenter ces photos.', 'chapo')}
+      <div class="al grow">${range(6).map(i => `<div class="al-c al-${i}">${I('p' + i, 'Photo')}<div class="al-cap">${T('y' + i, 'Année', 'al-y', true)}${T('c' + i, 'Légende', 'cap')}</div></div>`).join('')}</div>
+      ${FOLIO}`,
+  },
+  quotes: {
+    label: 'Ils ont dit',
+    defaults: { rub: 'People', title: 'Ils ont dit' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'Ils ont dit', 'big-title', true)}
+      <div class="pp grow">${range(6).map(i => `<div class="pp-c">${I('p' + i, 'Portrait', 'pp-ph')}<div class="pp-tx">${T('q' + i, '« La petite phrase »', 'pp-q')}${T('n' + i, 'Prénom Nom', 'pp-n', true)}${T('x' + i, 'À quelle occasion', 'pp-x')}</div></div>`).join('')}</div>
+      ${FOLIO}`,
+  },
+  horoscope: {
+    label: 'Horoscope',
+    defaults: { rub: 'Astrologie', title: 'Horoscope' },
+    html: () => `
+      ${RUB('Rubrique')}
+      <div class="ho-head">${T('title', 'Horoscope', 'big-title', true)}${T('intro', 'Ce que les astres vous réservent ce mois-ci…', 'chapo')}${T('by', 'Par …', 'byline', true)}</div>
+      <div class="ho grow">${SIGNS.map((s, i) => `<div class="ho-c"><div class="ho-s" aria-hidden="true">${s[1]}︎</div><div class="ho-n">${s[0]}</div><div class="ho-d">${s[2]}</div>${T('h' + i, 'Amour, travail, santé…', 'ho-t')}</div>`).join('')}</div>
+      ${FOLIO}`,
+  },
+  recipe: {
+    label: 'Recette',
+    defaults: { rub: 'Cuisine', ingT: 'Ingrédients', stepT: 'Préparation', tipT: 'L’astuce', cl1: 'Préparation', cl2: 'Cuisson', cl3: 'Pour' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'La recette de …', 'rp-title')}
+      ${I('photo', 'La photo du plat', 'rc-photo')}
+      <div class="rc-chips">${[1, 2, 3].map(i => `<div class="chip">${T('cl' + i, 'Libellé', 'chip-l', true)}${T('cv' + i, '…', 'chip-v', true)}</div>`).join('')}</div>
+      <div class="rc grow">
+        <div class="rc-ing">${T('ingT', 'Ingrédients', 'sub-h', true)}${T('ing', '200 g de farine\n3 œufs\n…', 'body')}</div>
+        <div class="rc-steps">
+          ${T('stepT', 'Préparation', 'sub-h', true)}
+          ${T('steps', '1. …\n2. …\n3. …', 'body')}
+          <div class="box">${T('tipT', 'L’astuce', 'box-t', true)}${T('tip', 'Le petit secret qui change tout.', 'box-l')}</div>
+        </div>
+      </div>
+      ${FOLIO}`,
+  },
+  quiz: {
+    label: 'Quiz & jeux',
+    defaults: { rub: 'Jeux', title: 'Le grand quiz', knowT: 'Le saviez-vous ?', ansT: 'Réponses' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'Le grand quiz', 'big-title', true)}
+      ${T('intro', 'Testez vos connaissances sur…', 'chapo')}
+      <div class="qz grow">${range(8).map(i => `<div class="qz-r"><div class="qz-n">${i + 1}</div><div>${T('q' + i, 'La question ?', 'qz-q')}${T('o' + i, 'A. …   B. …   C. …', 'qz-o')}</div></div>`).join('')}</div>
+      <div class="qz-foot">
+        <div class="box">${T('knowT', 'Le saviez-vous ?', 'box-t', true)}${T('know', 'Une anecdote étonnante.', 'box-l')}</div>
+        <div class="qz-ans">${T('ansT', 'Réponses', 'box-t', true)}${T('ans', '1. A · 2. C · 3. B · …  (imprimé à l’envers)', 'qz-a')}</div>
+      </div>
+      ${FOLIO}`,
+  },
+  ads: {
+    label: 'Petites annonces',
+    defaults: { rub: 'Annonces', title: 'Petites annonces' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${T('title', 'Petites annonces', 'big-title', true)}
+      <div class="pa grow">${range(8).map(i => `<div class="pa-c">${T('k' + i, 'Cherche / Vends / Échange', 'pa-k', true)}${T('t' + i, 'Le texte de l’annonce…', 'pa-t')}${T('c' + i, 'Contact : …', 'pa-x', true)}</div>`).join('')}</div>
+      ${FOLIO}`,
+  },
+  letters: {
+    label: 'Courrier des lecteurs',
+    defaults: { rub: 'Courrier', title: 'Vos mots doux' },
+    html: () => `
+      ${RUB('Rubrique')}
+      <div class="cr-head">${I('photo', 'Photo')}<div>${T('title', 'Vos mots doux', 'big-title', true)}${T('intro', 'Ils ont pris la plume pour vous écrire…', 'chapo')}</div></div>
+      <div class="cr grow">${range(6).map(i => `<div class="cr-c">${T('t' + i, 'Le titre de la lettre', 'cr-t')}${T('m' + i, 'Le message…', 'body')}${T('s' + i, 'Signé : …', 'cr-s', true)}</div>`).join('')}</div>
+      ${FOLIO}`,
+  },
+  end: {
+    label: 'Le mot de la fin',
+    defaults: { rub: 'Le mot de la fin', nextT: 'Dans le prochain numéro' },
+    html: () => `
+      ${RUB('Rubrique')}
+      ${I('photo', 'La photo de la fin', 'grow')}
+      ${T('quote', '« Le dernier mot, le plus beau »', 'fn-q')}
+      ${T('sign', '— Signé', 'fn-s', true)}
+      <div class="box">${T('nextT', 'Dans le prochain numéro', 'box-t', true)}${T('next', 'Ce que vous lirez la prochaine fois…', 'box-l')}</div>
+      ${FOLIO}`,
+  },
+};
+const ORDER = ['cover', 'summary', 'scoop', 'story', 'interview', 'album', 'quotes', 'horoscope', 'recipe', 'quiz', 'ads', 'letters', 'end'];
+
+/* ---------- État ---------- */
+const newPage = type => ({ id: uid(), type, d: { ...(TYPES[type].defaults || {}) } });
+const defaultState = () => ({ v: 1, accent: '#e2001a', g: { name1: 'Mamie', name2: 'Match' }, pages: ORDER.map(newPage) });
+let state = defaultState();
+let mode = 'edit';
+
+const pageById = id => state.pages.find(p => p.id === id);
+const pageOf = el => pageById(el.closest('.sheet').dataset.id);
+const getVal = (p, k) => k.startsWith('g.') ? state.g[k.slice(2)] : p.d[k];
+const setVal = (p, k, v) => { if (k.startsWith('g.')) state.g[k.slice(2)] = v; else p.d[k] = v; };
+
+/* ---------- Enregistrement (IndexedDB, plus spacieux que localStorage pour les photos) ---------- */
+const store = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('atelier-magazine', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => { this.db = r.result; res(); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  tx(mode, fn) {
+    return new Promise((res, rej) => {
+      const t = this.db.transaction('kv', mode);
+      const req = fn(t.objectStore('kv'));
+      t.oncomplete = () => res(req && req.result);
+      t.onerror = t.onabort = () => rej(t.error);
+    });
+  },
+  get(k) { return this.tx('readonly', s => s.get(k)); },
+  set(k, v) { return this.tx('readwrite', s => s.put(v, k)); },
+};
+let saveTimer = null;
+const status = $('#status');
+function scheduleSave() {
+  status.textContent = 'Enregistrement…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 500);
+}
+async function save() {
+  if (!store.db) { status.textContent = 'Non enregistré'; return; }
+  try {
+    await store.set('state', state);
+    status.textContent = 'Enregistré';
+  } catch (e) {
+    status.textContent = 'Non enregistré';
+    toast('Impossible d’enregistrer dans ce navigateur (espace plein ?). Utilisez « Exporter » pour garder votre travail.');
+  }
+}
+
+/* ---------- Affichage ---------- */
+const mag = $('#mag');
+function sheetHTML(p, i) {
+  const t = TYPES[p.type];
+  const last = i === state.pages.length - 1;
+  return `<section class="sheet" data-id="${p.id}">
+    <div class="sheet-bar">
+      <span class="sb-n">Page ${i + 1}</span><span>· ${t.label}</span><span class="sb-sp"></span>
+      <button type="button" data-pa="up" ${i === 0 ? 'disabled' : ''} aria-label="Monter la page">↑</button>
+      <button type="button" data-pa="down" ${last ? 'disabled' : ''} aria-label="Descendre la page">↓</button>
+      <button type="button" data-pa="dup">Dupliquer</button>
+      <button type="button" data-pa="del">Supprimer</button>
+    </div>
+    <article class="page p-${p.type}">${t.html()}</article>
+  </section>`;
+}
+function render() {
+  mag.innerHTML = state.pages.map(sheetHTML).join('');
+  $$('.sheet', mag).forEach(sh => {
+    const p = pageById(sh.dataset.id);
+    $$('[data-k]', sh).forEach(el => { el.textContent = getVal(p, el.dataset.k) || ''; });
+    $$('[data-img]', sh).forEach(fig => paintImg(fig, p.d[fig.dataset.img]));
+  });
+  applyMode();
+  refreshMirrors();
+}
+function refreshMirrors() {
+  const name = [state.g.name1, state.g.name2].filter(Boolean).join(' ');
+  $$('[data-mirror="name"]').forEach(el => { el.textContent = name; });
+  $$('[data-mirror="date"]').forEach(el => { el.textContent = state.g.date || ''; });
+  $$('.folio-n').forEach(el => { el.textContent = state.pages.findIndex(p => p.id === el.closest('.sheet').dataset.id) + 1; });
+}
+function paintImg(fig, im) {
+  const img = $('img', fig);
+  if (im && im.src) {
+    if (img.getAttribute('src') !== im.src) img.src = im.src;
+    img.hidden = false;
+    fig.classList.add('has');
+    const pos = `${im.x ?? 50}% ${im.y ?? 50}%`;
+    img.style.objectPosition = pos;
+    img.style.transformOrigin = pos;
+    img.style.transform = `scale(${im.z || 1})`;
+  } else {
+    img.removeAttribute('src');
+    img.hidden = true;
+    fig.classList.remove('has');
+  }
+}
+
+const PLAIN = (() => {
+  const d = document.createElement('div');
+  try { d.contentEditable = 'plaintext-only'; } catch (e) { return 'true'; }
+  return d.contentEditable === 'plaintext-only' ? 'plaintext-only' : 'true';
+})();
+function applyMode() {
+  document.body.classList.toggle('edit', mode === 'edit');
+  document.body.classList.toggle('view', mode === 'view');
+  $$('[data-k]', mag).forEach(el => {
+    el.contentEditable = mode === 'edit' ? PLAIN : 'false';
+    el.spellcheck = true;
+  });
+  $('#modeBtn').textContent = mode === 'edit' ? 'Aperçu' : 'Modifier';
+}
+
+/* Mise à l’échelle des pages sur les petits écrans */
+function fit() {
+  const avail = document.documentElement.clientWidth - 32;
+  const pagePx = 210 * 96 / 25.4;
+  document.documentElement.style.setProperty('--z', Math.min(1, avail / pagePx).toFixed(4));
+}
+window.addEventListener('resize', fit);
+
+/* ---------- Saisie de texte ---------- */
+/* Texte tel que tapé (innerText appliquerait les majuscules CSS) ; <br> et blocs deviennent des retours à la ligne */
+function readText(el) {
+  let out = '';
+  const walk = node => {
+    for (const n of node.childNodes) {
+      if (n.nodeType === 3) out += n.nodeValue;
+      else if (n.nodeName === 'BR') out += '\n';
+      else if (n.nodeType === 1) {
+        const block = /^(DIV|P|LI)$/.test(n.nodeName);
+        if (block && out && !out.endsWith('\n')) out += '\n';
+        walk(n);
+      }
+    }
+  };
+  walk(el);
+  return out;
+}
+mag.addEventListener('input', e => {
+  const el = e.target.closest('[data-k]');
+  if (!el) return;
+  const k = el.dataset.k;
+  let v = readText(el).replace(/ /g, ' ').replace(/\n+$/, '');
+  if (el.hasAttribute('data-single')) v = v.replace(/\n/g, ' ');
+  if (!v.trim()) v = '';
+  setVal(pageOf(el), k, v);
+  if (k.startsWith('g.')) {
+    $$(`[data-k="${k}"]`).forEach(o => { if (o !== el) o.textContent = v; });
+    refreshMirrors();
+  }
+  scheduleSave();
+});
+mag.addEventListener('focusout', e => {
+  const el = e.target.closest && e.target.closest('[data-k]');
+  if (el && !readText(el).trim()) el.textContent = '';
+});
+mag.addEventListener('keydown', e => {
+  const el = e.target.closest && e.target.closest('[data-k]');
+  if (!el) return;
+  if (e.key === 'Enter' && el.hasAttribute('data-single')) { e.preventDefault(); el.blur(); }
+  if (e.key === 'Escape') el.blur();
+});
+mag.addEventListener('paste', e => {
+  const el = e.target.closest && e.target.closest('[data-k]');
+  if (!el) return;
+  e.preventDefault();
+  let text = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+  if (el.hasAttribute('data-single')) text = text.replace(/\s*\n\s*/g, ' ');
+  document.execCommand('insertText', false, text);
+});
+
+/* ---------- Photos ---------- */
+const imgInput = $('#imgInput');
+let imgTarget = null;
+function pickImage(fig) {
+  imgTarget = { id: fig.closest('.sheet').dataset.id, key: fig.dataset.img };
+  imgInput.value = '';
+  imgInput.click();
+}
+imgInput.addEventListener('change', () => {
+  const file = imgInput.files[0];
+  if (file && imgTarget) placeImage(imgTarget.id, imgTarget.key, file);
+});
+async function fileToDataURL(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const max = 2200;
+    const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * s);
+    c.height = Math.round(img.naturalHeight * s);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.86);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+async function placeImage(pageId, key, file) {
+  if (!file.type.startsWith('image/')) { toast('Ce fichier n’est pas une image.'); return; }
+  try {
+    const src = await fileToDataURL(file);
+    const p = pageById(pageId);
+    if (!p) return;
+    p.d[key] = { src, x: 50, y: 50, z: 1 };
+    const fig = $(`.sheet[data-id="${pageId}"] [data-img="${key}"]`);
+    if (fig) paintImg(fig, p.d[key]);
+    scheduleSave();
+  } catch (e) {
+    toast('Image illisible. Essayez une photo au format JPG ou PNG.');
+  }
+}
+mag.addEventListener('click', e => {
+  if (mode !== 'edit') return;
+  const fig = e.target.closest('[data-img]');
+  if (!fig) return;
+  const btn = e.target.closest('[data-act]');
+  const p = pageOf(fig), key = fig.dataset.img, im = p.d[key];
+  if (btn) {
+    e.stopPropagation();
+    const act = btn.dataset.act;
+    if (act === 'change') return pickImage(fig);
+    if (act === 'del') delete p.d[key];
+    if (act === 'in' && im) im.z = Math.min(3, +((im.z || 1) + 0.15).toFixed(2));
+    if (act === 'out' && im) im.z = Math.max(1, +((im.z || 1) - 0.15).toFixed(2));
+    paintImg(fig, p.d[key]);
+    scheduleSave();
+    return;
+  }
+  if (!fig.classList.contains('has')) pickImage(fig);
+});
+/* Recadrage par glisser */
+let drag = null;
+mag.addEventListener('pointerdown', e => {
+  if (mode !== 'edit' || e.button !== 0) return;
+  const img = e.target.closest('.pic.has img');
+  if (!img) return;
+  const fig = img.closest('[data-img]');
+  const p = pageOf(fig), im = p.d[fig.dataset.img];
+  drag = { img, fig, im, sx: e.clientX, sy: e.clientY, x0: im.x ?? 50, y0: im.y ?? 50, moved: false };
+  img.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+mag.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const r = drag.fig.getBoundingClientRect();
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+  const k = 1.6 / (drag.im.z || 1);
+  drag.im.x = clamp(drag.x0 - dx / r.width * 100 * k, 0, 100);
+  drag.im.y = clamp(drag.y0 - dy / r.height * 100 * k, 0, 100);
+  paintImg(drag.fig, drag.im);
+});
+const endDrag = () => { if (drag && drag.moved) scheduleSave(); drag = null; };
+mag.addEventListener('pointerup', endDrag);
+mag.addEventListener('pointercancel', endDrag);
+/* Glisser-déposer un fichier */
+mag.addEventListener('dragover', e => {
+  const fig = e.target.closest('[data-img]');
+  if (!fig || mode !== 'edit') return;
+  e.preventDefault();
+  fig.classList.add('drop');
+});
+mag.addEventListener('dragleave', e => { const fig = e.target.closest('[data-img]'); if (fig) fig.classList.remove('drop'); });
+mag.addEventListener('drop', e => {
+  const fig = e.target.closest('[data-img]');
+  if (!fig || mode !== 'edit') return;
+  e.preventDefault();
+  fig.classList.remove('drop');
+  const file = e.dataTransfer.files[0];
+  if (file) placeImage(fig.closest('.sheet').dataset.id, fig.dataset.img, file);
+});
+
+/* ---------- Gestion des pages ---------- */
+/* Les suppressions demandent un second clic de confirmation */
+function armed(btn, label, action) {
+  if (btn.classList.contains('armed')) { action(); return; }
+  const old = btn.textContent;
+  btn.classList.add('armed');
+  btn.textContent = label;
+  setTimeout(() => { if (btn.isConnected) { btn.classList.remove('armed'); btn.textContent = old; } }, 3000);
+}
+mag.addEventListener('click', e => {
+  const btn = e.target.closest('[data-pa]');
+  if (!btn) return;
+  const id = btn.closest('.sheet').dataset.id;
+  const i = state.pages.findIndex(p => p.id === id);
+  const act = btn.dataset.pa;
+  const swap = j => { [state.pages[i], state.pages[j]] = [state.pages[j], state.pages[i]]; };
+  if (act === 'del') {
+    return armed(btn, 'Confirmer la suppression', () => {
+      state.pages.splice(i, 1);
+      render(); scheduleSave();
+    });
+  }
+  if (act === 'up' && i > 0) swap(i - 1);
+  if (act === 'down' && i < state.pages.length - 1) swap(i + 1);
+  if (act === 'dup') state.pages.splice(i + 1, 0, { id: uid(), type: state.pages[i].type, d: JSON.parse(JSON.stringify(state.pages[i].d)) });
+  render(); scheduleSave();
+  const target = act === 'dup' ? state.pages[i + 1].id : id;
+  $(`.sheet[data-id="${target}"]`).scrollIntoView({ block: 'start' });
+});
+
+const addSel = $('#addSel');
+addSel.innerHTML = '<option value="">+ Ajouter une page…</option>' +
+  Object.entries(TYPES).map(([k, t]) => `<option value="${k}">${t.label}</option>`).join('');
+addSel.addEventListener('change', () => {
+  const type = addSel.value;
+  addSel.value = '';
+  if (!TYPES[type]) return;
+  const p = newPage(type);
+  state.pages.push(p);
+  render(); scheduleSave();
+  $(`.sheet[data-id="${p.id}"]`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+/* ---------- Barre d’outils ---------- */
+$('#modeBtn').addEventListener('click', () => { mode = mode === 'edit' ? 'view' : 'edit'; applyMode(); });
+
+const accent = $('#accent');
+function applyAccent() {
+  document.documentElement.style.setProperty('--accent', state.accent || '#e2001a');
+  accent.value = state.accent || '#e2001a';
+}
+accent.addEventListener('input', () => { state.accent = accent.value; applyAccent(); scheduleSave(); });
+
+$('#printBtn').addEventListener('click', () => {
+  if (document.activeElement) document.activeElement.blur();
+  window.print();
+});
+
+$('#exportBtn').addEventListener('click', () => {
+  const name = ([state.g.name1, state.g.name2].filter(Boolean).join('-') || 'magazine')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  const day = new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(state)], { type: 'application/json' }));
+  a.download = `${name}-${day}.json`;
+  document.body.append(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  toast('Sauvegarde téléchargée. Envoyez ce fichier à un proche : il l’ouvrira avec « Importer ».');
+});
+
+const jsonInput = $('#jsonInput');
+$('#importBtn').addEventListener('click', () => { jsonInput.value = ''; jsonInput.click(); });
+jsonInput.addEventListener('change', async () => {
+  const file = jsonInput.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || !Array.isArray(data.pages) || !data.pages.every(p => p && TYPES[p.type])) throw new Error('format');
+    state = {
+      v: 1,
+      accent: data.accent || '#e2001a',
+      g: data.g || {},
+      pages: data.pages.map(p => ({ id: p.id || uid(), type: p.type, d: p.d || {} })),
+    };
+    applyAccent(); render(); scheduleSave();
+    toast('Magazine importé.');
+  } catch (e) {
+    toast('Ce fichier n’est pas une sauvegarde de magazine valide.');
+  }
+});
+
+$('#resetBtn').addEventListener('click', e => {
+  armed(e.currentTarget, 'Confirmer : tout effacer', () => {
+    state = defaultState();
+    applyAccent(); render(); scheduleSave();
+    window.scrollTo(0, 0);
+    toast('Le magazine a été remis à zéro.');
+  });
+});
+
+/* Aide repliable (préférence mémorisée) */
+try { if (localStorage.getItem('atelier-help') === 'off') $('#help').hidden = true; } catch (e) {}
+$('#helpClose').addEventListener('click', () => {
+  $('#help').hidden = true;
+  try { localStorage.setItem('atelier-help', 'off'); } catch (e) {}
+});
+
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 4500);
+}
+
+/* ---------- Démarrage ---------- */
+(async () => {
+  fit();
+  try {
+    await store.open();
+    const saved = await store.get('state');
+    if (saved && Array.isArray(saved.pages)) {
+      saved.pages = saved.pages.filter(p => TYPES[p.type]);
+      saved.g = saved.g || {};
+      state = saved;
+    }
+    status.textContent = 'Enregistré';
+  } catch (e) {
+    status.textContent = 'Non enregistré';
+    toast('Ce navigateur n’autorise pas l’enregistrement automatique : pensez à « Exporter ».');
+  }
+  applyAccent();
+  render();
+})();
+})();
+</script>
+</body>
+</html>
